@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+<html lang="en" ng-app="Tippy" >
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+    <title>Tip Calculator</title>
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+
+    <!-- Angular Material Library -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+</head>
+
+<body ng-controller="tipCalc" >
+    <div flex layout="column" ng-cloak>
+        <md-toolbar class="md-primary" layout="row" layout-align="center center">
+            <div class="md-toolbar-tools">
+                <span flex></span>
+                <h2 class="md-flex">Tip Calculator</h2>
+                <span flex></span>
+            </div>
+        </md-toolbar>
+        <md-content flex layout-padding>
+               <form layout="column">
+                        <md-input-container>
+                            <label>Bill Amount</label>
+                            <input type="text" ng-model="value"/>
+                        </md-input-container>
+
+                        <div layout="row" layout-align="center">
+                            <span></span>
+                            <div layout="column">
+                                <md-subheader class="md-primary">Tip Percentage: </md-subheader>
+
+                                <md-radio-group layout="row" ng-model="percent">
+
+                                    <div layout="column">
+                                        <div layout="row">
+                                            <md-radio-button value="0.18" class="md-primary" >18%</md-radio-button>
+                                            <md-radio-button value="0.2" > 20% </md-radio-button>
+                                        </div><br>
+                                        <div layout="row">
+                                            <md-radio-button value="0.25" >25%</md-radio-button>
+                                            <md-radio-button value="0" > Custom </md-radio-button>
+                                        </div>
+                                        <div>
+                                            <md-input-container>
+                                                <label>Custom Amount</label>
+                                                <input type="text" ng-model="custom">
+                                            </md-input-container>
+                                        </div>
+                                    </div>
+
+                                </md-radio-group>
+                                <span></span>
+                            </div>
+                        </div>
+                        <br>
+                        <md-button class="md-primary md-raised" md-no-ink ng-click="submitRequest()">Calculate</md-button>
+               </form>
+
+        </md-content>
+    </div>
+    <div flex layout="column" ng-cloak ng-show="data" layout-align="center center">
+        <table>
+            <thead><md-subheader>Result</md-subheader></thead>
+            <tr>
+                <td><md-subheader>Tip Amount</md-subheader></td>
+                <td><md-subheader>{{ data.tip }}</md-subheader></td>
+            </tr>
+            <tr>
+                <td><md-subheader>Total Amount</md-subheader></td>
+                <td><md-subheader>{{ data.total }}</md-subheader></td>
+            </tr>
+            <tr>
+                <td><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon></td>
+                <td><md-subheader>{{ data.split2 }}</md-subheader></td>
+            </tr>
+            <tr>
+                <td><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon></td>
+                <td><md-subheader>{{ data.split3 }}</md-subheader></td>
+            </tr>
+            <tr>
+                <td><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon></td>
+                <td><md-subheader>{{ data.split4 }}</md-subheader></td>
+            </tr>
+
+        </table>
+    </div>
+
+<script type="text/javascript">
+    var myApp = angular.module('Tippy', ['ngMaterial']);
+
+    myApp.controller('tipCalc',['$scope','$http','$rootScope','sendRequest', function ($scope,$http, $rootScope, sendRequest) {
+        $scope.title = "Tip Calculator"
+
+        $scope.submitRequest = function () {
+            $rootScope.value = $scope.value;
+            $rootScope.percent = $scope.percent;
+            sendRequest.sendReq().then(function (data) {
+                $scope.data = data;
+                console.log($scope.data);
+            });
+        }
+
+        $scope.toggle = function () {
+            console.log("toggle");
+            if($scope.value==0)
+                $scope.per=true;
+            else
+                $scope.per=false;
+        }
+
+    }]);
+
+    myApp.service('sendRequest',['$rootScope', '$http','$q', function ($rootScope, $http, $q) {
+
+        this.sendReq = function () {
+            console.log($rootScope.value);
+            console.log($rootScope.percent);
+            var req = {
+                method: 'POST',
+                url: "http://localhost/calculate.php",
+                data: {
+                    value: $rootScope.value,
+                    percent: $rootScope.percent,
+
+                }
+            };
+
+            return $q(function (resolve, reject) {
+                $http(req).then(function successCallback(response) {
+                    if(response.data){
+                        $rootScope.data = response.data;
+                        resolve(response.data);
+                    }else{
+                        reject();
+                    }
+
+                }, function error(response) {
+                    reject();
+                });
+            });
+        }
+        return this;
+
+    }]);
+</script>
+</body>
+
