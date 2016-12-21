@@ -18,6 +18,7 @@
 
     <!-- Angular Material Library -->
     <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular-messages.js"></script>
 </head>
 
 <body ng-controller="tipCalc" >
@@ -30,12 +31,15 @@
             </div>
         </md-toolbar>
         <md-content flex layout-padding>
-               <form layout="column">
+               <form layout="column" name="billForm">
                         <md-input-container>
                             <label>Bill Amount</label>
-                            <input type="text" ng-model="value"/>
+                            <input type="number" step="0.01" ng-model="value" required name="bill" min="0.01"/>
                         </md-input-container>
-
+                        <div ng-messages="billForm.bill.$touched && billForm.bill.$error" style="display:inline-block;vertical-align:top;color: red;margin-top: 5px;">
+                            <p ng-message="required">Please enter a bill amount</p>
+                            <p ng-message="min">Bill amount should be atleast 1 cent</p>
+                        </div>
                         <div layout="row" layout-align="center">
                             <span></span>
                             <div layout="column">
@@ -45,115 +49,35 @@
 
                                     <div layout="column">
                                         <div layout="row">
-                                            <md-radio-button value="0.18" class="md-primary" >18%</md-radio-button>
+                                            <md-radio-button value="0.18" class="md-primary" checked="checked">18%</md-radio-button>
                                             <md-radio-button value="0.2" > 20% </md-radio-button>
                                         </div><br>
                                         <div layout="row">
                                             <md-radio-button value="0.25" >25%</md-radio-button>
-                                            <md-radio-button value="0" > Custom </md-radio-button>
+                                            <md-radio-button value="-1" > Custom </md-radio-button>
                                         </div>
-                                        <div>
-                                            <md-input-container>
-                                                <label>Custom Amount</label>
-                                                <input type="text" ng-model="custom">
-                                            </md-input-container>
-                                        </div>
+
                                     </div>
 
                                 </md-radio-group>
+                                <div ng-hide="percent!=-1">
+                                    <md-input-container>
+                                        <label>Custom Amount</label>
+                                        <input type="text" ng-model="custom">
+                                    </md-input-container>
+                                </div>
                                 <span></span>
                             </div>
                         </div>
                         <br>
-                        <md-button class="md-primary md-raised" md-no-ink ng-click="submitRequest()">Calculate</md-button>
+                        <md-button class="md-primary md-raised" md-no-ink ng-click="submitRequest()"
+                        ng-disabled="billForm.bill.$dirty&&billForm.bill.$invalid">Calculate</md-button>
                </form>
 
         </md-content>
     </div>
-    <div flex layout="column" ng-cloak ng-show="data" layout-align="center center">
-        <table>
-            <thead><md-subheader>Result</md-subheader></thead>
-            <tr>
-                <td><md-subheader>Tip Amount</md-subheader></td>
-                <td><md-subheader>{{ data.tip }}</md-subheader></td>
-            </tr>
-            <tr>
-                <td><md-subheader>Total Amount</md-subheader></td>
-                <td><md-subheader>{{ data.total }}</md-subheader></td>
-            </tr>
-            <tr>
-                <td><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon></td>
-                <td><md-subheader>{{ data.split2 }}</md-subheader></td>
-            </tr>
-            <tr>
-                <td><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon></td>
-                <td><md-subheader>{{ data.split3 }}</md-subheader></td>
-            </tr>
-            <tr>
-                <td><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon><md-icon>account_circle</md-icon></td>
-                <td><md-subheader>{{ data.split4 }}</md-subheader></td>
-            </tr>
 
-        </table>
-    </div>
 
-<script type="text/javascript">
-    var myApp = angular.module('Tippy', ['ngMaterial']);
-
-    myApp.controller('tipCalc',['$scope','$http','$rootScope','sendRequest', function ($scope,$http, $rootScope, sendRequest) {
-        $scope.title = "Tip Calculator"
-
-        $scope.submitRequest = function () {
-            $rootScope.value = $scope.value;
-            $rootScope.percent = $scope.percent;
-            sendRequest.sendReq().then(function (data) {
-                $scope.data = data;
-                console.log($scope.data);
-            });
-        }
-
-        $scope.toggle = function () {
-            console.log("toggle");
-            if($scope.value==0)
-                $scope.per=true;
-            else
-                $scope.per=false;
-        }
-
-    }]);
-
-    myApp.service('sendRequest',['$rootScope', '$http','$q', function ($rootScope, $http, $q) {
-
-        this.sendReq = function () {
-            console.log($rootScope.value);
-            console.log($rootScope.percent);
-            var req = {
-                method: 'POST',
-                url: "http://localhost/calculate.php",
-                data: {
-                    value: $rootScope.value,
-                    percent: $rootScope.percent,
-
-                }
-            };
-
-            return $q(function (resolve, reject) {
-                $http(req).then(function successCallback(response) {
-                    if(response.data){
-                        $rootScope.data = response.data;
-                        resolve(response.data);
-                    }else{
-                        reject();
-                    }
-
-                }, function error(response) {
-                    reject();
-                });
-            });
-        }
-        return this;
-
-    }]);
-</script>
+    <script type="text/javascript" src="main.js"></script>
 </body>
-
+</html>
