@@ -20,7 +20,10 @@
     <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular-messages.js"></script>
 </head>
-
+<?php
+    $radioButton1 = array("15%"=>"0.15","20%"=>"0.2");
+    $radioButton2 = array("25%"=>"0.25","Custom"=>"-1");
+?>
 <body ng-controller="tipCalc" >
     <div flex layout="column" ng-cloak>
         <md-toolbar class="md-primary" layout="row" layout-align="center center">
@@ -39,6 +42,7 @@
                         <div ng-messages="billForm.bill.$touched && billForm.bill.$error" style="display:inline-block;vertical-align:top;color: red;margin-top: 5px;">
                             <p ng-message="required">Please enter a bill amount</p>
                             <p ng-message="min">Bill amount should be atleast 1 cent</p>
+                            <p ng-message="number">Please enter a valid value</p>
                         </div>
                         <div layout="row" layout-align="center">
                             <span></span>
@@ -46,24 +50,32 @@
                                 <md-subheader class="md-primary">Tip Percentage: </md-subheader>
 
                                 <md-radio-group layout="row" ng-model="percent">
-
                                     <div layout="column">
                                         <div layout="row">
-                                            <md-radio-button value="0.18" class="md-primary" checked="checked">18%</md-radio-button>
-                                            <md-radio-button value="0.2" > 20% </md-radio-button>
-                                        </div><br>
-                                        <div layout="row">
-                                            <md-radio-button value="0.25" >25%</md-radio-button>
-                                            <md-radio-button value="-1" > Custom </md-radio-button>
+                                            <?php
+                                                foreach ($radioButton1 as $x => $x_value){
+                                            ?>
+                                            <md-radio-button value=<?php echo "$x_value"?>> <?php echo $x?></md-radio-button>
+                                            <?php } ?>
+
                                         </div>
+                                        <br>
+                                        <div layout="row">
+                                            <?php
+                                            foreach ($radioButton2 as $x => $x_value){
+                                            ?>
+                                            <md-radio-button value=<?php echo "$x_value"?>> <?php echo $x?></md-radio-button>
+                                            <?php } ?>
 
+                                        </div>
+                                        <br>
                                     </div>
-
                                 </md-radio-group>
+
                                 <div ng-hide="percent!=-1">
                                     <md-input-container>
                                         <label>Custom Amount</label>
-                                        <input type="text" ng-model="custom">
+                                        <input type="number" step="0.1" ng-model="custom">
                                     </md-input-container>
                                 </div>
                                 <span></span>
@@ -71,7 +83,7 @@
                         </div>
                         <br>
                         <md-button class="md-primary md-raised" md-no-ink ng-click="submitRequest()"
-                        ng-disabled="billForm.bill.$dirty&&billForm.bill.$invalid">Calculate</md-button>
+                        ng-disabled="billForm.bill.$dirty&&billForm.bill.$invalid || billForm.bill.$untouched&&billForm.bill.$error">Calculate</md-button>
                </form>
 
         </md-content>

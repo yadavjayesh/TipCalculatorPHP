@@ -7,6 +7,7 @@ myApp.controller('tipCalc',['$scope','$http','$rootScope','sendRequest','$mdBott
                                                                                                     sendRequest,$mdBottomSheet) {
     $scope.title = "Tip Calculator"
     $scope.percent=0.18;
+    $scope.custom=10;
     $scope.submitRequest = function () {
 
         if($scope.percent!=-1)
